@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LinoStrategy Fund — Market value</title>
+  <meta name="description" content="LinoStrategy Fund — a concentrated digital-assets and Indonesian-equities investment fund. Live market value, returns and holdings." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230a1730'/><text x='50' y='68' font-size='58' text-anchor='middle' fill='%2316c784' font-family='Arial' font-weight='bold'>L</text></svg>" />
+</head>
+<body>
+  <!-- ===== Top navigation ===== -->
+  <header class="nav">
+    <div class="nav-inner container">
+      <a class="brand" href="#top" aria-label="LinoStrategy Fund home">
+        <span class="brand-mark">L</span>
+        <span class="brand-text">
+          <strong>LinoStrategy</strong>
+          <em>Fund</em>
+        </span>
+      </a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#value">The fund</a>
+        <a href="#allocation">Investments</a>
+        <a href="#holdings">Holdings</a>
+        <a href="#returns">Returns</a>
+        <a href="#about">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- ===== Hero: live market value ===== -->
+    <section class="hero" id="value">
+      <div class="container hero-inner">
+        <p class="hero-label">Market value of the fund</p>
+
+        <div class="hero-value" id="heroValue" aria-live="polite">
+          <span class="hero-cur" id="heroCur">Rp</span><span class="hero-num" id="heroNum">0</span>
+        </div>
+
+        <div class="hero-sub">
+          <span class="live-dot" aria-hidden="true"></span>
+          <span id="heroClock">—</span>
+          <span class="dot-sep">·</span>
+          <span id="heroAlt">—</span>
+        </div>
+
+        <div class="hero-meta">
+          <span class="badge" id="heroReturn">+0.00%</span>
+          <span class="hero-meta-label">all-time return</span>
+          <div class="cur-toggle" role="group" aria-label="Display currency">
+            <button class="cur-btn is-active" data-cur="IDR">IDR</button>
+            <button class="cur-btn" data-cur="USD">USD</button>
+          </div>
+        </div>
+
+        <p class="hero-price" id="btcPrice">1 BTC = —</p>
+      </div>
+    </section>
+
+    <!-- ===== Performance chart ===== -->
+    <section class="section chart-section">
+      <div class="container">
+        <div class="section-head">
+          <h2>Market value over time</h2>
+          <div class="period-tabs" role="group" aria-label="Chart period">
+            <button class="period-btn" data-period="1D">1D</button>
+            <button class="period-btn" data-period="1W">1W</button>
+            <button class="period-btn" data-period="1M">1M</button>
+            <button class="period-btn" data-period="6M">6M</button>
+            <button class="period-btn" data-period="1Y">1Y</button>
+            <button class="period-btn is-active" data-period="ALL">ALL</button>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="chart" height="320" aria-label="Fund market value chart"></canvas>
+          <div class="chart-tooltip" id="chartTip" hidden></div>
+        </div>
+        <div class="chart-foot" id="chartFoot"></div>
+      </div>
+    </section>
+
+    <!-- ===== Asset allocation ===== -->
+    <section class="section" id="allocation">
+      <div class="container">
+        <div class="section-head">
+          <h2>Asset allocation</h2>
+          <p class="section-note">How the fund is invested across asset classes.</p>
+        </div>
+        <div class="alloc-grid">
+          <div class="alloc-card">
+            <h3>By asset class</h3>
+            <div class="donut-row">
+              <div class="donut" id="donutTotal" role="img" aria-label="Allocation by asset class"></div>
+              <ul class="legend" id="legendTotal"></ul>
+            </div>
+          </div>
+          <div class="alloc-card">
+            <h3>Equities breakdown</h3>
+            <div class="donut-row">
+              <div class="donut" id="donutEquity" role="img" aria-label="Equities breakdown"></div>
+              <ul class="legend" id="legendEquity"></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Holdings ===== -->
+    <section class="section" id="holdings">
+      <div class="container">
+        <div class="section-head">
+          <h2>Holdings</h2>
+          <p class="section-note">Every position held by the fund.</p>
+        </div>
+
+        <h3 class="table-title">Digital assets</h3>
+        <div class="table-wrap">
+          <table class="holdings-table" id="cryptoTable">
+            <thead>
+              <tr><th>Asset</th><th class="num">Holdings</th><th class="num">Price</th><th class="num">Market value</th><th class="num">Return</th><th class="num">Weight</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <h3 class="table-title">Indonesian equities</h3>
+        <div class="table-wrap">
+          <table class="holdings-table" id="equityTable">
+            <thead>
+              <tr><th>Ticker</th><th>Company</th><th>Sector</th><th class="num">Shares</th><th class="num">Avg / Last</th><th class="num">Market value</th><th class="num">Return</th><th class="num">Weight</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Returns / key figures ===== -->
+    <section class="section returns-section" id="returns">
+      <div class="container">
+        <div class="section-head">
+          <h2>Key figures</h2>
+          <p class="section-note">As of <span id="asOfLabel">—</span>.</p>
+        </div>
+        <div class="stats-grid" id="statsGrid"></div>
+      </div>
+    </section>
+
+    <!-- ===== About / mandate ===== -->
+    <section class="section about-section" id="about">
+      <div class="container about-grid">
+        <div>
+          <h2>The fund's mandate</h2>
+          <p>
+            LinoStrategy Fund is a privately held investment vehicle pursuing long-term capital
+            appreciation through a concentrated core allocation to digital assets, complemented by
+            selective, high-conviction positions in Indonesian equities. The fund is managed with a
+            multi-decade horizon, low turnover, and a conviction-weighted approach to position sizing.
+          </p>
+        </div>
+        <ul class="mandate-list">
+          <li><strong>Digital assets</strong><span>Bitcoin held as a long-term store of value and the fund's strategic core.</span></li>
+          <li><strong>Indonesian equities</strong><span>Selective exposure to technology platforms, investment holdings and banking.</span></li>
+          <li><strong>Approach</strong><span>Conviction-weighted, low-turnover, long-term oriented.</span></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div>
+        <span class="brand-mark small">L</span>
+        <strong>LinoStrategy Fund</strong>
+      </div>
+      <p class="disclaimer">
+        For informational purposes only. Figures are derived from the owner's brokerage and wallet
+        balances and may differ from official statements. Not investment advice. Past performance is
+        not indicative of future results.
+      </p>
+    </div>
+  </footer>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
