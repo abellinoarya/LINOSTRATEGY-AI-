@@ -2,7 +2,7 @@
    LinoStrategy Fund — data + interactions
    ------------------------------------------------------------
    Edit the CONFIG block below to update holdings / prices.
-   Everything else (totals, weights, charts) is derived.
+   BTC price is fetched live from CoinGecko every 30 s.
    ============================================================ */
 
 const CONFIG = {
@@ -37,6 +37,7 @@ btc.valueIDR = btc.valueUSD * R;
 btc.costUSD  = btc.valueUSD / (1 + btc.allTimePct / 100);
 btc.plUSD    = btc.valueUSD - btc.costUSD;
 btc.livePrice = btc.priceUSD;
+btc.priceSource = 'seed'; // 'seed' | 'live' | 'error'
 
 CONFIG.equities.forEach(e => {
   e.shares  = e.lots * CONFIG.lotSize;
@@ -96,7 +97,11 @@ function renderHero() {
   const ret = (displayIDR - totalCostIDR) / totalCostIDR * 100;
   heroReturn.textContent = pct(ret);
   heroReturn.classList.toggle('neg', ret < 0);
-  btcPriceEl.textContent = '1 BTC = $' + fmtInt.format(Math.round(btc.livePrice));
+
+  const srcBadge = btc.priceSource === 'live'  ? '<span class="price-badge live">LIVE</span>'
+                 : btc.priceSource === 'error' ? '<span class="price-badge err">OFFLINE</span>'
+                 :                               '<span class="price-badge seed">SEED</span>';
+  btcPriceEl.innerHTML = '1 BTC = $' + fmtInt.format(Math.round(btc.livePrice)) + ' ' + srcBadge;
 }
 
 function tick() {
@@ -106,11 +111,40 @@ function tick() {
   renderHero();
   requestAnimationFrame(tick);
 }
-// gentle random walk on the BTC price to drive the live counter
-setInterval(() => {
-  const drift = (Math.random() - 0.5) * 0.0009;
-  btc.livePrice = Math.max(btc.priceUSD * 0.85, Math.min(btc.priceUSD * 1.15, btc.livePrice * (1 + drift)));
-}, 1500);
+
+/* ============================================================
+   Live BTC price — CoinGecko public API, polled every 30 s
+   ============================================================ */
+let lastFetchTime = null;
+
+async function fetchBtcPrice() {
+  try {
+    const res = await fetch(
+      'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd',
+      { cache: 'no-store' }
+    );
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const price = data?.bitcoin?.usd;
+    if (!price || typeof price !== 'number') throw new Error('bad payload');
+    btc.livePrice = price;
+    btc.priceSource = 'live';
+    lastFetchTime = new Date();
+    // recalculate all-time return based on live price
+    btc.allTimePct = ((btc.livePrice - btc.costUSD / btc.amount) / (btc.costUSD / btc.amount)) * 100;
+    renderTables();
+    renderLegends();
+    renderStats();
+    drawChart();
+  } catch (e) {
+    btc.priceSource = btc.priceSource === 'live' ? 'error' : btc.priceSource;
+    console.warn('BTC price fetch failed:', e.message);
+  }
+}
+
+// fetch immediately on load, then every 30 s
+fetchBtcPrice();
+setInterval(fetchBtcPrice, 30_000);
 
 /* ---------- live clock ---------- */
 const heroClock = document.getElementById('heroClock');
@@ -119,7 +153,10 @@ function updateClock() {
   const hh = String(t.getHours()).padStart(2, '0');
   const mm = String(t.getMinutes()).padStart(2, '0');
   const ss = String(t.getSeconds()).padStart(2, '0');
-  heroClock.textContent = `${CONFIG.asOf} · ${hh}:${mm}:${ss}`;
+  const upd = lastFetchTime
+    ? ` · BTC updated ${String(lastFetchTime.getHours()).padStart(2,'0')}:${String(lastFetchTime.getMinutes()).padStart(2,'0')}:${String(lastFetchTime.getSeconds()).padStart(2,'0')}`
+    : '';
+  heroClock.textContent = `${hh}:${mm}:${ss}${upd}`;
 }
 setInterval(updateClock, 1000);
 

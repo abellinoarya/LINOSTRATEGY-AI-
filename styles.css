@@ -86,7 +86,11 @@ h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: -0.02em; }
 .cur-toggle { display: inline-flex; border: 1px solid var(--line-2); border-radius: 999px; overflow: hidden; margin-left: 4px; }
 .cur-btn { background: transparent; color: var(--muted); border: 0; padding: 7px 16px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all .15s; }
 .cur-btn.is-active { background: var(--text); color: var(--bg); }
-.hero-price { margin: 22px 0 0; color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+.hero-price { margin: 22px 0 0; color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.price-badge { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; padding: 3px 7px; border-radius: 999px; vertical-align: middle; }
+.price-badge.live { background: rgba(22,199,132,0.15); color: var(--accent); border: 1px solid rgba(22,199,132,0.35); }
+.price-badge.seed { background: rgba(145,164,194,0.15); color: var(--muted); border: 1px solid rgba(145,164,194,0.25); }
+.price-badge.err  { background: rgba(234,57,67,0.13); color: var(--red); border: 1px solid rgba(234,57,67,0.3); }
 
 /* ===== Sections ===== */
 .section { padding: 56px 0; border-top: 1px solid var(--line); }
