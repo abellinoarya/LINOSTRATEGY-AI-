@@ -84,6 +84,13 @@ const heroReturn = document.getElementById('heroReturn');
 const btcPriceEl = document.getElementById('btcPrice');
 let displayIDR = baseTotalIDR();
 
+/* Continuous live-tick growth (NBIM-style): the displayed value drifts
+   upward every frame at an assumed annual growth rate, and gently
+   corrects toward the real total whenever a fresh BTC price arrives. */
+const ASSUMED_ANNUAL_GROWTH = 0.14;            // 14% / yr expected appreciation
+const SECONDS_PER_YEAR = 365.25 * 24 * 3600;
+let lastTickTime = performance.now();
+
 function renderHero() {
   if (state.currency === 'USD') {
     heroCur.textContent = '$';
@@ -104,10 +111,17 @@ function renderHero() {
   btcPriceEl.innerHTML = '1 BTC = $' + fmtInt.format(Math.round(btc.livePrice)) + ' ' + srcBadge;
 }
 
-function tick() {
+function tick(now) {
+  if (typeof now !== 'number') now = performance.now();
+  const dt = Math.min((now - lastTickTime) / 1000, 1); // seconds, capped
+  lastTickTime = now;
+
   const target = baseTotalIDR();
-  displayIDR += (target - displayIDR) * 0.09;
-  if (Math.abs(target - displayIDR) < 1) displayIDR = target;
+  // continuous upward drift at the assumed growth rate
+  displayIDR += displayIDR * (ASSUMED_ANNUAL_GROWTH / SECONDS_PER_YEAR) * dt;
+  // gently pull toward the real total when live data moves it
+  displayIDR += (target - displayIDR) * 0.04;
+
   renderHero();
   requestAnimationFrame(tick);
 }
@@ -235,7 +249,7 @@ function drawChart() {
   plotGeo = { X, Y, data, pad, plotW, plotH, w, h };
 
   // gridlines
-  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+  ctx.strokeStyle = 'rgba(17,17,17,0.07)';
   ctx.lineWidth = 1;
   for (let g = 0; g <= 4; g++) {
     const y = pad.t + (g / 4) * plotH;
@@ -243,12 +257,12 @@ function drawChart() {
   }
 
   const up = data[data.length - 1].v >= data[0].v;
-  const line = up ? '#16c784' : '#ea3943';
+  const line = up ? '#0a7d5a' : '#c0362c';
 
   // area fill
   const grad = ctx.createLinearGradient(0, pad.t, 0, h - pad.b);
-  grad.addColorStop(0, up ? 'rgba(22,199,132,0.28)' : 'rgba(234,57,67,0.26)');
-  grad.addColorStop(1, 'rgba(22,199,132,0)');
+  grad.addColorStop(0, up ? 'rgba(10,125,90,0.18)' : 'rgba(192,54,44,0.16)');
+  grad.addColorStop(1, up ? 'rgba(10,125,90,0)' : 'rgba(192,54,44,0)');
   ctx.beginPath();
   ctx.moveTo(X(0), Y(data[0].v));
   for (let i = 1; i < data.length; i++) ctx.lineTo(X(i), Y(data[i].v));
@@ -267,7 +281,7 @@ function drawChart() {
   if (['ALL', '1Y', '6M'].includes(state.period)) {
     let pi = 0; for (let i = 1; i < data.length; i++) if (data[i].v > data[pi].v) pi = i;
     const px = X(pi), py = Y(data[pi].v);
-    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    ctx.fillStyle = 'rgba(17,17,17,0.45)';
     ctx.font = '11px Inter, sans-serif'; ctx.textAlign = pi > data.length / 2 ? 'right' : 'left';
     ctx.fillText('peak ' + compactCur(series[pi].v), px + (pi > data.length / 2 ? -8 : 8), py - 8);
   }
@@ -275,7 +289,7 @@ function drawChart() {
   // current dot
   const lx = X(data.length - 1), ly = Y(data[data.length - 1].v);
   ctx.beginPath(); ctx.arc(lx, ly, 4.5, 0, Math.PI * 2); ctx.fillStyle = line; ctx.fill();
-  ctx.beginPath(); ctx.arc(lx, ly, 9, 0, Math.PI * 2); ctx.fillStyle = up ? 'rgba(22,199,132,0.18)' : 'rgba(234,57,67,0.18)'; ctx.fill();
+  ctx.beginPath(); ctx.arc(lx, ly, 9, 0, Math.PI * 2); ctx.fillStyle = up ? 'rgba(10,125,90,0.15)' : 'rgba(192,54,44,0.15)'; ctx.fill();
 
   // footer summary
   const first = series[0].v, lastV = series[series.length - 1].v;
