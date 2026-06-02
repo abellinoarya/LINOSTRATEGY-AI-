@@ -6,7 +6,7 @@
    ============================================================ */
 
 const CONFIG = {
-  fundName: 'LinoStrategy Fund',
+  fundName: 'Linostrategy Investment Management',
   asOf: '30 May 2026',
   usdIdr: 16250,          // USD -> IDR conversion rate (editable)
 
