@@ -282,7 +282,7 @@ function drawChart() {
     let pi = 0; for (let i = 1; i < data.length; i++) if (data[i].v > data[pi].v) pi = i;
     const px = X(pi), py = Y(data[pi].v);
     ctx.fillStyle = 'rgba(17,17,17,0.45)';
-    ctx.font = '11px Inter, sans-serif'; ctx.textAlign = pi > data.length / 2 ? 'right' : 'left';
+    ctx.font = '11px "Libre Franklin", sans-serif'; ctx.textAlign = pi > data.length / 2 ? 'right' : 'left';
     ctx.fillText('peak ' + compactCur(series[pi].v), px + (pi > data.length / 2 ? -8 : 8), py - 8);
   }
 
